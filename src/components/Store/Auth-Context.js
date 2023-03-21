@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 const AuthContext = React.createContext({
   token: "",
   isLoggedIn: false,
@@ -18,6 +18,32 @@ export const AuthContextProvider = (props) => {
     setToken(null);
     localStorage.removeItem("token");
   };
+  useEffect(() => {
+    let timer;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        logoutHandler();
+      }, 60 * 1000);
+    };
+    const events = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+    ];
+    for (let event of events) {
+      window.addEventListener(event, resetTimer);
+    }
+    resetTimer();
+    return () => {
+      for (let event of events) {
+        window.removeEventListener(event, resetTimer);
+      }
+      clearTimeout(timer);
+    };
+  }, []);
   const ContextValue = {
     token: token,
     isLoggedIn: userIsLoggedIn,
